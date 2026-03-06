@@ -1,6 +1,6 @@
-const ADMIN_TOKEN_KEY = "hl_admin_token";
+﻿const ADMIN_TOKEN_KEY = "hl_admin_token";
 const ADMIN_USER_KEY = "hl_admin_user";
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export async function loginAdmin(email, password) {
   const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {

@@ -5,7 +5,16 @@ import pool from "./db.js";
 
 const app = express();
 
-app.use(cors());
+const corsOrigins = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((item) => item.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
+  }),
+);
 app.use(express.json());
 
 const STATUS_VALUES = new Set(["available", "sold", "rented", "hidden"]);
@@ -1029,6 +1038,8 @@ app.put("/api/admin/images/:id/cover", requireAdmin, async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+const PORT = Number(process.env.PORT || 5000);
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

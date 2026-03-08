@@ -140,4 +140,3 @@ function StatusBadge({ status }) {
 }
 
 export default AdminPropertiesPage;
-

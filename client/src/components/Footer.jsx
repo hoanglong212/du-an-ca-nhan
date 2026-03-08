@@ -15,37 +15,37 @@ function Footer() {
               <h3 className="text-2xl font-bold">{SITE_CONFIG.shortBrandName}</h3>
             </div>
             <p className="max-w-sm text-sm text-slate-300">
-              {SITE_CONFIG.brandName} dong hanh de ban tim duoc bat dong san phu hop voi su an tam va minh bach.
+              {SITE_CONFIG.brandName} đồng hành để bạn tìm được bất động sản phù hợp với sự an tâm và minh bạch.
             </p>
           </div>
 
           <div>
-            <h4 className="mb-5 text-base font-bold text-[var(--brand-gold-300)]">Lien ket nhanh</h4>
+            <h4 className="mb-5 text-base font-bold text-[var(--brand-gold-300)]">Liên kết nhanh</h4>
             <div className="space-y-2 text-sm">
               <Link className="block transition-colors hover:text-white" to="/">
-                Trang chu
+                Trang chủ
               </Link>
               <Link className="block transition-colors hover:text-white" to="/properties">
-                Bat dong san
+                Bất động sản
               </Link>
               <Link className="block transition-colors hover:text-white" to="/contact">
-                Lien he
+                Liên hệ
               </Link>
             </div>
           </div>
 
           <div>
-            <h4 className="mb-5 text-base font-bold text-[var(--brand-gold-300)]">Loai hinh tieu bieu</h4>
+            <h4 className="mb-5 text-base font-bold text-[var(--brand-gold-300)]">Loại hình tiêu biểu</h4>
             <ul className="space-y-2 text-sm text-slate-200">
-              <li>Biet thu cao cap</li>
-              <li>Nha pho gia dinh</li>
-              <li>Can ho</li>
-              <li>Nha lien ke</li>
+              <li>Biệt thự cao cấp</li>
+              <li>Nhà phố gia đình</li>
+              <li>Căn hộ</li>
+              <li>Nhà liền kề</li>
             </ul>
           </div>
 
           <div>
-            <h4 className="mb-5 text-base font-bold text-[var(--brand-gold-300)]">Lien he</h4>
+            <h4 className="mb-5 text-base font-bold text-[var(--brand-gold-300)]">Liên hệ</h4>
             <div className="space-y-3 text-sm text-slate-200">
               <p className="flex items-start gap-3">
                 <MapPin className="mt-0.5" size={16} />
@@ -77,7 +77,7 @@ function Footer() {
         </div>
 
         <div className="mt-12 border-t border-white/15 pt-8 text-center text-xs text-slate-400">
-          © 2026 {SITE_CONFIG.shortBrandName}. Bao luu moi quyen.
+          © 2026 {SITE_CONFIG.shortBrandName}. Bảo lưu mọi quyền.
         </div>
       </div>
     </footer>

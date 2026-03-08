@@ -55,6 +55,8 @@ function AdminEditPropertyPage() {
       district: property.district ?? "",
       ward: property.ward ?? "",
       address_text: property.address_text ?? "",
+      property_kind: property.property_kind ?? "",
+      legal_document: property.legal_document ?? "",
       lat: property.lat ?? "",
       lng: property.lng ?? "",
       category_id: property.category_id ?? "",
@@ -69,7 +71,7 @@ function AdminEditPropertyPage() {
       setError("");
       setMessage("");
       await updateAdminProperty(id, payload);
-      setMessage("Cap nhat tin thanh cong.");
+      setMessage("Cập nhật tin thành công.");
       await loadPropertyDetail();
     } catch (apiError) {
       setError(apiError.message);
@@ -80,15 +82,15 @@ function AdminEditPropertyPage() {
 
   return (
     <AdminShell
-      title="Chinh sua tin"
-      subtitle="Cap nhat thong tin va quan ly hinh anh cho bat dong san."
+      title="Chỉnh sửa tin"
+      subtitle="Cập nhật thông tin và quản lý hình ảnh cho bất động sản."
       actions={
         <button
           className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-200"
           type="button"
           onClick={() => navigate("/admin/properties")}
         >
-          Quay lai danh sach
+          Quay lại danh sách
         </button>
       }
     >
@@ -96,7 +98,7 @@ function AdminEditPropertyPage() {
       {message ? <p className="mb-4 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-600">{message}</p> : null}
 
       {loading ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">Dang tai du lieu...</div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">Đang tải dữ liệu...</div>
       ) : property ? (
         <div className="space-y-6">
           <PropertyForm
@@ -105,13 +107,13 @@ function AdminEditPropertyPage() {
             initialValues={initialValues}
             loading={saving}
             onSubmit={handleSubmit}
-            submitLabel="Luu thay doi"
+            submitLabel="Lưu thay đổi"
           />
           <ImageManager propertyId={property.id} images={property.images || []} onChanged={loadPropertyDetail} />
         </div>
       ) : (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-          Khong tim thay bat dong san.
+          Không tìm thấy bất động sản.
         </div>
       )}
     </AdminShell>

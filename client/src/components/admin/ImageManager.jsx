@@ -170,4 +170,3 @@ function ImageManager({ propertyId, images = [], onChanged }) {
 }
 
 export default ImageManager;
-

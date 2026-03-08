@@ -13,6 +13,8 @@ const DEFAULT_FORM = {
   district: "",
   ward: "",
   address_text: "",
+  property_kind: "",
+  legal_document: "",
   lat: "",
   lng: "",
   category_id: "",
@@ -305,6 +307,25 @@ function PropertyForm({
           onChange={(e) => setField("address_text", e.target.value)}
         />
       </Field>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <Field label="Loại hình chi tiết">
+          <input
+            className="w-full rounded-xl border border-slate-300 px-4 py-2 outline-none focus:border-[#c7a15a]"
+            placeholder="Ví dụ: Đất thổ cư, Căn hộ, Nhà phố..."
+            value={values.property_kind}
+            onChange={(e) => setField("property_kind", e.target.value)}
+          />
+        </Field>
+        <Field label="Giấy tờ pháp lý">
+          <input
+            className="w-full rounded-xl border border-slate-300 px-4 py-2 outline-none focus:border-[#c7a15a]"
+            placeholder="Ví dụ: Đã có sổ, Hợp đồng mua bán..."
+            value={values.legal_document}
+            onChange={(e) => setField("legal_document", e.target.value)}
+          />
+        </Field>
+      </div>
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <Field label="Vĩ độ (lat)">

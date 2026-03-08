@@ -4,8 +4,8 @@ import { submitContact } from "../services/api.js";
 
 function ContactForm({
   propertyId = null,
-  title = "Gui thong tin lien he",
-  subtitle = "De lai thong tin, doi ngu tu van se lien he voi ban trong thoi gian som nhat.",
+  title = "Gửi thông tin liên hệ",
+  subtitle = "Để lại thông tin, đội ngũ tư vấn sẽ liên hệ với bạn trong thời gian sớm nhất.",
 }) {
   const [formData, setFormData] = useState({
     name: "",
@@ -24,15 +24,15 @@ function ContactForm({
 
   function validateForm() {
     if (!formData.name.trim() || !formData.phone.trim()) {
-      return "Vui long nhap ho ten va so dien thoai.";
+      return "Vui lòng nhập họ tên và số điện thoại.";
     }
 
     if (!/^[0-9+\s().-]{8,20}$/.test(formData.phone.trim())) {
-      return "So dien thoai khong hop le.";
+      return "Số điện thoại không hợp lệ.";
     }
 
     if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      return "Email khong hop le.";
+      return "Email không hợp lệ.";
     }
 
     return "";
@@ -58,10 +58,10 @@ function ContactForm({
         phone: formData.phone.trim(),
         message: formData.message.trim() || null,
       });
-      setSuccessMessage("Gui thong tin thanh cong.");
+      setSuccessMessage("Gửi thông tin thành công.");
       setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (error) {
-      setErrorMessage(error.message || "Khong the gui thong tin luc nay.");
+      setErrorMessage(error.message || "Không thể gửi thông tin lúc này.");
     } finally {
       setLoading(false);
     }
@@ -74,14 +74,14 @@ function ContactForm({
 
       <form className="mt-8 space-y-5" onSubmit={onSubmit}>
         <label className="block text-sm font-semibold text-slate-700">
-          Ho va ten
+          Họ và tên
           <div className="mt-2 flex items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3">
             <User size={18} className="text-slate-400" />
             <input
               className="w-full bg-transparent outline-none"
               name="name"
               onChange={onChange}
-              placeholder="Nhap ho ten"
+              placeholder="Nhập họ tên"
               value={formData.name}
             />
           </div>
@@ -104,7 +104,7 @@ function ContactForm({
           </label>
 
           <label className="block text-sm font-semibold text-slate-700">
-            So dien thoai
+            Số điện thoại
             <div className="mt-2 flex items-center gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3">
               <Phone size={18} className="text-slate-400" />
               <input
@@ -119,14 +119,14 @@ function ContactForm({
         </div>
 
         <label className="block text-sm font-semibold text-slate-700">
-          Noi dung
+          Nội dung
           <div className="mt-2 flex items-start gap-3 rounded-2xl border border-slate-300 bg-white px-4 py-3">
             <MessageSquare size={18} className="mt-1 text-slate-400" />
             <textarea
               className="min-h-32 w-full bg-transparent outline-none"
               name="message"
               onChange={onChange}
-              placeholder="Nhu cau cua ban..."
+              placeholder="Nhu cầu của bạn..."
               value={formData.message}
             />
           </div>
@@ -140,7 +140,7 @@ function ContactForm({
           disabled={loading}
           type="submit"
         >
-          {loading ? "Dang gui..." : "Gui tin nhan"}
+          {loading ? "Đang gửi..." : "Gửi tin nhắn"}
         </button>
       </form>
     </div>

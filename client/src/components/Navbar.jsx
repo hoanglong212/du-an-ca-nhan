@@ -4,9 +4,9 @@ import { Link, NavLink } from "react-router-dom";
 import { SITE_CONFIG } from "../constants/site.js";
 
 const navLinks = [
-  { to: "/", label: "Trang chu" },
-  { to: "/properties", label: "Bat dong san" },
-  { to: "/contact", label: "Lien he" },
+  { to: "/", label: "Trang chủ" },
+  { to: "/properties", label: "Bất động sản" },
+  { to: "/contact", label: "Liên hệ" },
 ];
 
 function Navbar() {
@@ -50,7 +50,7 @@ function Navbar() {
           <span>
             <strong className="block text-lg font-bold text-slate-800">{SITE_CONFIG.shortBrandName}</strong>
             <small className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--brand-gold-600)]">
-              Tu van nha dat
+              Tư vấn nhà đất
             </small>
           </span>
         </Link>
@@ -75,7 +75,7 @@ function Navbar() {
             href={`tel:${SITE_CONFIG.phoneRaw}`}
           >
             <Phone size={16} />
-            Goi ngay
+            Gọi ngay
           </a>
         </div>
 
@@ -110,7 +110,7 @@ function Navbar() {
                 href={`tel:${SITE_CONFIG.phoneRaw}`}
               >
                 <Phone size={16} />
-                Goi ngay
+                Gọi ngay
               </a>
             </div>
           </div>

@@ -1,18 +1,18 @@
 export function formatPriceVND(price) {
   if (price === null || price === undefined || Number.isNaN(Number(price))) {
-    return "Gia lien he";
+    return "Giá liên hệ";
   }
 
   const value = Number(price);
 
   if (value >= 1_000_000_000) {
     const billions = value / 1_000_000_000;
-    return `${stripDecimal(billions)} ty`;
+    return `${stripDecimal(billions)} tỷ`;
   }
 
   if (value >= 1_000_000) {
     const millions = value / 1_000_000;
-    return `${stripDecimal(millions)} trieu`;
+    return `${stripDecimal(millions)} triệu`;
   }
 
   return `${new Intl.NumberFormat("vi-VN").format(value)} VND`;
@@ -20,7 +20,7 @@ export function formatPriceVND(price) {
 
 export function formatArea(area) {
   if (area === null || area === undefined || Number.isNaN(Number(area))) {
-    return "Dang cap nhat";
+    return "Đang cập nhật";
   }
 
   return `${stripDecimal(Number(area))} m2`;
@@ -28,17 +28,17 @@ export function formatArea(area) {
 
 export function formatLocation(property) {
   const parts = [property?.ward, property?.district, property?.city].filter(Boolean);
-  return parts.length > 0 ? parts.join(", ") : "Dang cap nhat dia chi";
+  return parts.length > 0 ? parts.join(", ") : "Đang cập nhật địa chỉ";
 }
 
 export function formatStatus(status) {
-  if (!status) return "Dang cap nhat";
+  if (!status) return "Đang cập nhật";
 
   const map = {
-    available: "Dang mo ban",
-    sold: "Da ban",
-    rented: "Da cho thue",
-    hidden: "Tam an",
+    available: "Đang mở bán",
+    sold: "Đã bán",
+    rented: "Đã cho thuê",
+    hidden: "Tạm ẩn",
   };
 
   return map[String(status).toLowerCase()] || status;

@@ -34,7 +34,11 @@ const ADMIN_TOKEN_SECRET =
   process.env.ADMIN_TOKEN_SECRET || "change-this-secret-in-env";
 const ADMIN_TOKEN_EXPIRES_IN_SECONDS = 60 * 60 * 24 * 7;
 
-let hasAmenitiesColumn = null;
+const propertyColumnFlags = {
+  amenities: null,
+  property_kind: null,
+  legal_document: null,
+};
 
 function asyncHandler(handler) {
   return (req, res, next) =>
@@ -160,20 +164,38 @@ function comparePassword(inputPassword, storedHash) {
   return safeEqual(stored, sha256(input));
 }
 
-async function ensureAmenitiesColumnFlag() {
-  if (hasAmenitiesColumn !== null) return hasAmenitiesColumn;
-
-  try {
-    const [rows] = await pool.query(
-      "SHOW COLUMNS FROM properties LIKE 'amenities'",
-    );
-    hasAmenitiesColumn = rows.length > 0;
-  } catch (error) {
-    console.error("Detect amenities column error:", error);
-    hasAmenitiesColumn = false;
+async function ensurePropertyColumnFlag(columnName) {
+  if (Object.prototype.hasOwnProperty.call(propertyColumnFlags, columnName) === false) {
+    return false;
   }
 
-  return hasAmenitiesColumn;
+  if (propertyColumnFlags[columnName] !== null) {
+    return propertyColumnFlags[columnName];
+  }
+
+  try {
+    const [rows] = await pool.query("SHOW COLUMNS FROM properties LIKE ?", [columnName]);
+    propertyColumnFlags[columnName] = rows.length > 0;
+  } catch (error) {
+    console.error(`Detect ${columnName} column error:`, error);
+    propertyColumnFlags[columnName] = false;
+  }
+
+  return propertyColumnFlags[columnName];
+}
+
+async function getPropertyOptionalColumns() {
+  const [amenitiesAvailable, propertyKindAvailable, legalDocumentAvailable] = await Promise.all([
+    ensurePropertyColumnFlag("amenities"),
+    ensurePropertyColumnFlag("property_kind"),
+    ensurePropertyColumnFlag("legal_document"),
+  ]);
+
+  return {
+    amenitiesAvailable,
+    propertyKindAvailable,
+    legalDocumentAvailable,
+  };
 }
 
 function normalizeStatus(input) {
@@ -269,6 +291,8 @@ function buildPropertyPayload(body = {}) {
     district: cleanText(body.district),
     ward: cleanText(body.ward),
     address_text: cleanText(body.address_text),
+    property_kind: cleanText(body.property_kind) || null,
+    legal_document: cleanText(body.legal_document) || null,
     lat: toNullableNumber(body.lat),
     lng: toNullableNumber(body.lng),
     category_id: toNullableNumber(body.category_id),
@@ -525,6 +549,15 @@ async function insertImages(
   if (!Array.isArray(images) || images.length === 0) return;
 
   const hasCover = images.some((image) => image.is_cover);
+  let hasExistingCover = false;
+
+  if (!resetCover) {
+    const [[coverRow]] = await connection.query(
+      "SELECT COUNT(*) AS cover_count FROM property_images WHERE property_id = ? AND is_cover = TRUE",
+      [propertyId],
+    );
+    hasExistingCover = Number(coverRow.cover_count || 0) > 0;
+  }
 
   if (resetCover && hasCover) {
     await connection.query(
@@ -533,9 +566,13 @@ async function insertImages(
     );
   }
 
-  const normalizedImages = hasCover
-    ? images
-    : images.map((image, index) => ({ ...image, is_cover: index === 0 }));
+  let normalizedImages = images;
+  if (!hasCover) {
+    normalizedImages = images.map((image, index) => ({
+      ...image,
+      is_cover: hasExistingCover ? false : index === 0,
+    }));
+  }
 
   for (const image of normalizedImages) {
     await connection.query(
@@ -628,6 +665,7 @@ app.get(
 app.get(
   "/api/properties",
   asyncHandler(async (req, res) => {
+    const { propertyKindAvailable } = await getPropertyOptionalColumns();
     const { whereSql, params } = buildPublicPropertyFilter(req.query);
     const sortKey = parseSort(req.query.sort);
     const { page, limit, offset } = parsePagination(req.query);
@@ -658,6 +696,7 @@ app.get(
         p.district,
         p.ward,
         p.status,
+        ${propertyKindAvailable ? "p.property_kind," : ""}
         p.created_at,
         c.id AS category_id,
         c.name AS category_name,
@@ -697,6 +736,7 @@ app.get(
 app.get(
   "/api/properties/:slug/related",
   asyncHandler(async (req, res) => {
+    const { propertyKindAvailable } = await getPropertyOptionalColumns();
     const slug = cleanText(req.params.slug);
     if (!slug) {
       return res.status(400).json({ error: "Slug khong hop le." });
@@ -734,6 +774,7 @@ app.get(
         p.district,
         p.ward,
         p.status,
+        ${propertyKindAvailable ? "p.property_kind," : ""}
         (
           SELECT pi.image_url
           FROM property_images pi
@@ -763,7 +804,8 @@ app.get(
   "/api/properties/:slug",
   asyncHandler(async (req, res) => {
     const slug = cleanText(req.params.slug);
-    const amenitiesAvailable = await ensureAmenitiesColumnFlag();
+    const { amenitiesAvailable, propertyKindAvailable, legalDocumentAvailable } =
+      await getPropertyOptionalColumns();
 
     const [propertyRows] = await pool.query(
       `
@@ -781,6 +823,8 @@ app.get(
         p.district,
         p.ward,
         p.address_text,
+        ${propertyKindAvailable ? "p.property_kind," : ""}
+        ${legalDocumentAvailable ? "p.legal_document," : ""}
         p.lat,
         p.lng,
         p.status${amenitiesAvailable ? ", p.amenities" : ""},
@@ -820,6 +864,8 @@ app.get(
     property.amenities = amenitiesAvailable
       ? parseAmenities(property.amenities)
       : [];
+    property.property_kind = propertyKindAvailable ? cleanText(property.property_kind) || null : null;
+    property.legal_document = legalDocumentAvailable ? cleanText(property.legal_document) || null : null;
 
     res.json(property);
   }),
@@ -1031,7 +1077,8 @@ app.get(
   requireAdmin,
   asyncHandler(async (req, res) => {
     const propertyId = toInteger(req.params.id, null, { min: 1 });
-    const amenitiesAvailable = await ensureAmenitiesColumnFlag();
+    const { amenitiesAvailable, propertyKindAvailable, legalDocumentAvailable } =
+      await getPropertyOptionalColumns();
 
     if (propertyId === null) {
       return res.status(400).json({ error: "ID bat dong san khong hop le." });
@@ -1053,6 +1100,8 @@ app.get(
         district,
         ward,
         address_text,
+        ${propertyKindAvailable ? "property_kind," : ""}
+        ${legalDocumentAvailable ? "legal_document," : ""}
         lat,
         lng,
         category_id,
@@ -1086,6 +1135,8 @@ app.get(
     property.amenities = amenitiesAvailable
       ? parseAmenities(property.amenities)
       : [];
+    property.property_kind = propertyKindAvailable ? cleanText(property.property_kind) || null : null;
+    property.legal_document = legalDocumentAvailable ? cleanText(property.legal_document) || null : null;
 
     res.json(property);
   }),
@@ -1105,7 +1156,8 @@ app.post(
     const connection = await pool.getConnection();
 
     try {
-      const amenitiesAvailable = await ensureAmenitiesColumnFlag();
+      const { amenitiesAvailable, propertyKindAvailable, legalDocumentAvailable } =
+        await getPropertyOptionalColumns();
       await connection.beginTransaction();
 
       const insertColumns = [
@@ -1121,6 +1173,8 @@ app.post(
         "district",
         "ward",
         "address_text",
+        ...(propertyKindAvailable ? ["property_kind"] : []),
+        ...(legalDocumentAvailable ? ["legal_document"] : []),
         "lat",
         "lng",
         "category_id",
@@ -1140,6 +1194,8 @@ app.post(
         payload.district,
         payload.ward,
         payload.address_text,
+        ...(propertyKindAvailable ? [payload.property_kind] : []),
+        ...(legalDocumentAvailable ? [payload.legal_document] : []),
         payload.lat,
         payload.lng,
         payload.category_id,
@@ -1186,7 +1242,7 @@ app.post(
       if (error.code === "ER_BAD_FIELD_ERROR") {
         return res.status(400).json({
           error:
-            "Thieu cot amenities trong bang properties. Vui long chay migration SQL moi.",
+            "Thieu cot moi trong bang properties (amenities/property_kind/legal_document). Vui long chay migration SQL moi.",
         });
       }
 
@@ -1216,7 +1272,8 @@ app.put(
     const connection = await pool.getConnection();
 
     try {
-      const amenitiesAvailable = await ensureAmenitiesColumnFlag();
+      const { amenitiesAvailable, propertyKindAvailable, legalDocumentAvailable } =
+        await getPropertyOptionalColumns();
       await connection.beginTransaction();
 
       const updateClauses = [
@@ -1232,6 +1289,8 @@ app.put(
         "district = ?",
         "ward = ?",
         "address_text = ?",
+        ...(propertyKindAvailable ? ["property_kind = ?"] : []),
+        ...(legalDocumentAvailable ? ["legal_document = ?"] : []),
         "lat = ?",
         "lng = ?",
         "category_id = ?",
@@ -1251,6 +1310,8 @@ app.put(
         payload.district,
         payload.ward,
         payload.address_text,
+        ...(propertyKindAvailable ? [payload.property_kind] : []),
+        ...(legalDocumentAvailable ? [payload.legal_document] : []),
         payload.lat,
         payload.lng,
         payload.category_id,
@@ -1298,7 +1359,7 @@ app.put(
       if (error.code === "ER_BAD_FIELD_ERROR") {
         return res.status(400).json({
           error:
-            "Thieu cot amenities trong bang properties. Vui long chay migration SQL moi.",
+            "Thieu cot moi trong bang properties (amenities/property_kind/legal_document). Vui long chay migration SQL moi.",
         });
       }
 
@@ -1308,3 +1369,156 @@ app.put(
     }
   }),
 );
+
+app.delete(
+  "/api/admin/properties/:id",
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const propertyId = toInteger(req.params.id, null, { min: 1 });
+    if (propertyId === null) {
+      return res.status(400).json({ error: "ID bat dong san khong hop le." });
+    }
+
+    const [result] = await pool.query("DELETE FROM properties WHERE id = ?", [propertyId]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Khong tim thay bat dong san de xoa." });
+    }
+
+    res.json({ message: "Xoa bat dong san thanh cong." });
+  }),
+);
+
+app.post(
+  "/api/admin/properties/:id/images",
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const propertyId = toInteger(req.params.id, null, { min: 1 });
+    if (propertyId === null) {
+      return res.status(400).json({ error: "ID bat dong san khong hop le." });
+    }
+
+    const images = normalizeImageList(req.body);
+    if (images.length === 0) {
+      return res.status(400).json({ error: "Vui long cung cap it nhat mot URL anh hop le." });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const exists = await ensurePropertyExists(connection, propertyId);
+      if (!exists) {
+        await connection.rollback();
+        return res.status(404).json({ error: "Khong tim thay bat dong san." });
+      }
+
+      await insertImages(connection, propertyId, images, {
+        resetCover: images.some((item) => item.is_cover),
+      });
+
+      await connection.commit();
+      res.status(201).json({ message: "Them anh thanh cong." });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }),
+);
+
+app.put(
+  "/api/admin/images/:id/cover",
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const imageId = toInteger(req.params.id, null, { min: 1 });
+    if (imageId === null) {
+      return res.status(400).json({ error: "ID anh khong hop le." });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const [rows] = await connection.query(
+        "SELECT id, property_id FROM property_images WHERE id = ? LIMIT 1",
+        [imageId],
+      );
+
+      if (rows.length === 0) {
+        await connection.rollback();
+        return res.status(404).json({ error: "Khong tim thay anh." });
+      }
+
+      const propertyId = rows[0].property_id;
+      await connection.query("UPDATE property_images SET is_cover = FALSE WHERE property_id = ?", [propertyId]);
+      await connection.query("UPDATE property_images SET is_cover = TRUE WHERE id = ?", [imageId]);
+
+      await connection.commit();
+      res.json({ message: "Cap nhat anh dai dien thanh cong." });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }),
+);
+
+app.delete(
+  "/api/admin/images/:id",
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const imageId = toInteger(req.params.id, null, { min: 1 });
+    if (imageId === null) {
+      return res.status(400).json({ error: "ID anh khong hop le." });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const [rows] = await connection.query(
+        "SELECT id, property_id FROM property_images WHERE id = ? LIMIT 1",
+        [imageId],
+      );
+
+      if (rows.length === 0) {
+        await connection.rollback();
+        return res.status(404).json({ error: "Khong tim thay anh." });
+      }
+
+      const propertyId = rows[0].property_id;
+      await connection.query("DELETE FROM property_images WHERE id = ?", [imageId]);
+      await ensureCoverImage(connection, propertyId);
+
+      await connection.commit();
+      res.json({ message: "Xoa anh thanh cong." });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }),
+);
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Route khong ton tai." });
+});
+
+app.use((error, req, res, next) => {
+  console.error("Unhandled server error:", error);
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  return res.status(500).json({
+    error: "Loi may chu noi bo.",
+  });
+});
+
+const PORT = toInteger(process.env.PORT, 5000, { min: 1, max: 65535 }) || 5000;
+app.listen(PORT, () => {
+  console.log(`Server dang chay tai http://localhost:${PORT}`);
+});

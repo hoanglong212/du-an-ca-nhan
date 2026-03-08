@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ImageManager from "../../components/admin/ImageManager.jsx";
 import AdminShell from "../../components/admin/AdminShell.jsx";
@@ -19,7 +19,7 @@ function AdminEditPropertyPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  async function loadPropertyDetail() {
+  const loadPropertyDetail = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -34,11 +34,11 @@ function AdminEditPropertyPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [id]);
 
   useEffect(() => {
     loadPropertyDetail();
-  }, [id]);
+  }, [loadPropertyDetail]);
 
   const initialValues = useMemo(() => {
     if (!property) return undefined;
@@ -69,7 +69,7 @@ function AdminEditPropertyPage() {
       setError("");
       setMessage("");
       await updateAdminProperty(id, payload);
-      setMessage("Cập nhật tin thành công.");
+      setMessage("Cap nhat tin thanh cong.");
       await loadPropertyDetail();
     } catch (apiError) {
       setError(apiError.message);
@@ -80,15 +80,15 @@ function AdminEditPropertyPage() {
 
   return (
     <AdminShell
-      title="Chỉnh sửa tin"
-      subtitle="Cập nhật thông tin và quản lý hình ảnh cho bất động sản."
+      title="Chinh sua tin"
+      subtitle="Cap nhat thong tin va quan ly hinh anh cho bat dong san."
       actions={
         <button
           className="rounded-xl bg-slate-100 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-200"
           type="button"
           onClick={() => navigate("/admin/properties")}
         >
-          Quay lại danh sách
+          Quay lai danh sach
         </button>
       }
     >
@@ -96,7 +96,7 @@ function AdminEditPropertyPage() {
       {message ? <p className="mb-4 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-600">{message}</p> : null}
 
       {loading ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">Đang tải dữ liệu...</div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">Dang tai du lieu...</div>
       ) : property ? (
         <div className="space-y-6">
           <PropertyForm
@@ -105,13 +105,13 @@ function AdminEditPropertyPage() {
             initialValues={initialValues}
             loading={saving}
             onSubmit={handleSubmit}
-            submitLabel="Lưu thay đổi"
+            submitLabel="Luu thay doi"
           />
           <ImageManager propertyId={property.id} images={property.images || []} onChanged={loadPropertyDetail} />
         </div>
       ) : (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-          Không tìm thấy bất động sản.
+          Khong tim thay bat dong san.
         </div>
       )}
     </AdminShell>

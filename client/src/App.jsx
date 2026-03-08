@@ -17,7 +17,7 @@ function App() {
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <div className="min-h-screen text-slate-800">
       {!isAdminRoute ? <Navbar /> : null}
       <main>
         <Routes>

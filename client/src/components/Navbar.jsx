@@ -1,12 +1,12 @@
-import { Home, Menu, Phone } from "lucide-react";
+import { Building2, Menu, Phone, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { SITE_CONFIG } from "../constants/site.js";
 
 const navLinks = [
-  { to: "/", label: "Trang chủ" },
-  { to: "/properties", label: "Bất động sản" },
-  { to: "/contact", label: "Liên hệ" },
+  { to: "/", label: "Trang chu" },
+  { to: "/properties", label: "Bat dong san" },
+  { to: "/contact", label: "Lien he" },
 ];
 
 function Navbar() {
@@ -15,7 +15,7 @@ function Navbar() {
 
   useEffect(() => {
     function onScroll() {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > 8);
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -23,30 +23,45 @@ function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    function onResize() {
+      if (window.innerWidth >= 768) {
+        setMobileOpen(false);
+      }
+    }
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [mobileOpen]);
+
   return (
     <header
-      className={`sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur transition-shadow duration-300 ${
-        isScrolled ? "shadow-[0_8px_30px_rgba(15,31,58,0.10)]" : ""
+      className={`sticky top-0 z-50 border-b border-slate-200/70 bg-white/85 backdrop-blur-xl transition-shadow duration-300 ${
+        isScrolled ? "shadow-[0_12px_28px_rgba(15,31,58,0.10)]" : ""
       }`}
     >
-      <div className="container-shell flex h-24 items-center justify-between">
-        <Link className="flex items-center gap-4" to="/">
-          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-700 text-[#d2b06a] shadow-soft">
-            <Home size={24} />
+      <div className="container-shell flex h-20 items-center justify-between">
+        <Link className="flex items-center gap-3" to="/">
+          <span className="grid h-11 w-11 place-items-center rounded-xl bg-[var(--brand-navy-900)] text-[var(--brand-gold-300)]">
+            <Building2 size={20} />
           </span>
           <span>
-            <strong className="block text-2xl font-bold text-slate-800">{SITE_CONFIG.shortBrandName}</strong>
-            <small className="text-xs font-bold uppercase tracking-[0.06em] text-[#c7a15a]">Đơn vị gia đình uy tín</small>
+            <strong className="block text-lg font-bold text-slate-800">{SITE_CONFIG.shortBrandName}</strong>
+            <small className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--brand-gold-600)]">
+              Tu van nha dat
+            </small>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-10 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {navLinks.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `text-lg font-semibold transition ${isActive ? "text-slate-900" : "text-slate-700 hover:text-slate-900"}`
+                `text-sm font-semibold transition ${isActive ? "text-[var(--brand-navy-900)]" : "text-slate-600 hover:text-[var(--brand-navy-900)]"}`
               }
             >
               {item.label}
@@ -56,27 +71,28 @@ function Navbar() {
 
         <div className="hidden md:block">
           <a
-            className="inline-flex items-center gap-2 rounded-2xl bg-[#c7a15a] px-8 py-4 text-xl font-bold text-white shadow-soft transition duration-300 hover:scale-[1.02] hover:bg-[#b8924f] hover:shadow-[0_0_24px_rgba(199,161,90,0.35)]"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-gold-500)] px-5 py-3 text-sm font-bold text-white shadow-soft transition duration-300 hover:scale-[1.02] hover:bg-[var(--brand-gold-600)]"
             href={`tel:${SITE_CONFIG.phoneRaw}`}
           >
-            <Phone size={20} />
-            Gọi ngay
+            <Phone size={16} />
+            Goi ngay
           </a>
         </div>
 
         <button
-          className="rounded-xl border border-slate-300 p-3 md:hidden"
+          className="rounded-xl border border-slate-300 p-2.5 md:hidden"
           onClick={() => setMobileOpen((prev) => !prev)}
           type="button"
+          aria-label="Toggle menu"
         >
-          <Menu size={20} />
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
       {mobileOpen ? (
         <div className="border-t border-slate-200 bg-white md:hidden">
           <div className="container-shell py-4">
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {navLinks.map((item) => (
                 <NavLink
                   key={item.to}
@@ -90,11 +106,11 @@ function Navbar() {
                 </NavLink>
               ))}
               <a
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-[#c7a15a] px-4 py-3 font-semibold text-white transition duration-300 hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(199,161,90,0.35)]"
+                className="mt-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-gold-500)] px-4 py-3 text-sm font-semibold text-white"
                 href={`tel:${SITE_CONFIG.phoneRaw}`}
               >
-                <Phone size={18} />
-                Gọi ngay
+                <Phone size={16} />
+                Goi ngay
               </a>
             </div>
           </div>

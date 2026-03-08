@@ -68,12 +68,14 @@ function ContactPage() {
   );
 }
 
-function QuickItem({ icon: Icon, title, value, subtitle, href }) {
+function QuickItem({ icon, title, value, subtitle, href }) {
+  const IconComponent = icon;
+
   return (
     <a className="block rounded-2xl bg-white/12 p-4 transition duration-300 hover:bg-white/18" href={href} target={href?.startsWith("http") ? "_blank" : undefined} rel={href?.startsWith("http") ? "noreferrer" : undefined}>
       <div className="flex items-start gap-4">
         <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#c7a15a] text-white">
-          <Icon size={22} />
+          <IconComponent size={22} />
         </span>
         <div>
           <h4 className="text-2xl font-bold">{title}</h4>

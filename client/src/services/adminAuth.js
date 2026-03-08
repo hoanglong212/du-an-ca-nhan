@@ -1,24 +1,12 @@
-﻿const ADMIN_TOKEN_KEY = "hl_admin_token";
+import { ADMIN_TOKEN_KEY, request } from "./http.js";
+
 const ADMIN_USER_KEY = "hl_admin_user";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export async function loginAdmin(email, password) {
-  const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
+  const payload = await request("/api/admin/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: { email, password },
   });
-
-  let payload = null;
-  try {
-    payload = await response.json();
-  } catch {
-    payload = null;
-  }
-
-  if (!response.ok) {
-    throw new Error(payload?.error || "Đăng nhập thất bại.");
-  }
 
   saveAdminSession(payload.token, payload.user);
   return payload;

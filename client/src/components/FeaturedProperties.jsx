@@ -9,56 +9,53 @@ function FeaturedProperties({ properties = [], loading = false }) {
 
   const filtered = useMemo(() => {
     if (activeTab === "all") return properties;
-    if (activeTab === "rent") {
-      return properties.filter((item) => String(item.status || "").toLowerCase().includes("rent"));
-    }
-    return properties.filter((item) => !String(item.status || "").toLowerCase().includes("rent"));
+    return properties.filter((item) => String(item.type || "").toLowerCase() === activeTab);
   }, [activeTab, properties]);
 
   return (
     <section className="container-shell py-20">
       <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-5xl font-extrabold text-[#1f2e43] md:text-6xl">Bất động sản nổi bật</h2>
-          <p className="mt-3 text-3xl text-slate-500">Khám phá những sản phẩm nổi bật được lựa chọn kỹ lưỡng</p>
+          <h2 className="text-4xl font-extrabold text-[var(--brand-navy-900)] md:text-5xl">Bat dong san noi bat</h2>
+          <p className="mt-3 text-base text-slate-600">Kham pha nhung san pham duoc cap nhat moi nhat tu he thong.</p>
         </div>
         <Link
-          className="inline-flex items-center gap-2 rounded-2xl bg-[#1d2f49] px-8 py-4 text-lg font-bold text-white transition duration-300 hover:scale-[1.02]"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[var(--brand-navy-900)] px-8 py-4 text-sm font-bold text-white transition duration-300 hover:scale-[1.02]"
           to="/properties"
         >
-          Xem tất cả
+          Xem tat ca
           <ArrowRight size={18} />
         </Link>
       </div>
 
       <div className="mb-8 flex flex-wrap gap-3">
         <button
-          className={`rounded-2xl px-6 py-3 font-semibold ${activeTab === "all" ? "bg-[#1d2f49] text-white" : "bg-slate-100 text-slate-700"}`}
+          className={`rounded-2xl px-6 py-3 font-semibold ${activeTab === "all" ? "bg-[var(--brand-navy-900)] text-white" : "bg-slate-100 text-slate-700"}`}
           onClick={() => setActiveTab("all")}
           type="button"
         >
-          Tất cả
+          Tat ca
         </button>
         <button
-          className={`rounded-2xl px-6 py-3 font-semibold ${activeTab === "sale" ? "bg-[#1d2f49] text-white" : "bg-slate-100 text-slate-700"}`}
+          className={`rounded-2xl px-6 py-3 font-semibold ${activeTab === "sale" ? "bg-[var(--brand-navy-900)] text-white" : "bg-slate-100 text-slate-700"}`}
           onClick={() => setActiveTab("sale")}
           type="button"
         >
-          Bán
+          Mua ban
         </button>
         <button
-          className={`rounded-2xl px-6 py-3 font-semibold ${activeTab === "rent" ? "bg-[#1d2f49] text-white" : "bg-slate-100 text-slate-700"}`}
+          className={`rounded-2xl px-6 py-3 font-semibold ${activeTab === "rent" ? "bg-[var(--brand-navy-900)] text-white" : "bg-slate-100 text-slate-700"}`}
           onClick={() => setActiveTab("rent")}
           type="button"
         >
-          Cho thuê
+          Cho thue
         </button>
       </div>
 
-      {loading ? <p className="rounded-2xl bg-white p-6 shadow-soft">Đang tải dữ liệu...</p> : null}
+      {loading ? <p className="surface-card rounded-2xl p-6">Dang tai du lieu...</p> : null}
 
       {!loading && filtered.length === 0 ? (
-        <p className="rounded-2xl bg-white p-6 shadow-soft">Không tìm thấy bất động sản phù hợp.</p>
+        <p className="surface-card rounded-2xl p-6">Khong tim thay bat dong san phu hop.</p>
       ) : null}
 
       {!loading && filtered.length > 0 ? (
@@ -73,4 +70,3 @@ function FeaturedProperties({ properties = [], loading = false }) {
 }
 
 export default FeaturedProperties;
-

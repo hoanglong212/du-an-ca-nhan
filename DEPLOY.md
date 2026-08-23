@@ -1,43 +1,35 @@
-# Deploy Huong Dan
+# Render deployment checklist
 
-## Cach nhanh nhat (Render)
+The root `render.yaml` defines two services:
 
-Du an da co san file `render.yaml` o thu muc goc.
+- `hoanglong-api`: Node/Express web service rooted at `server/`
+- `hoanglong-web`: React static site rooted at `client/`
 
-1. Day code len GitHub.
-2. Vao Render -> `New` -> `Blueprint`.
-3. Chon repo nay, Render se doc `render.yaml` va tao:
-   - `hoanglong-api` (backend)
-   - `hoanglong-web` (frontend static)
-4. Dat bien moi truong cho backend (`hoanglong-api`):
-   - `DB_HOST`
-   - `DB_PORT`
-   - `DB_USER`
-   - `DB_PASSWORD`
-   - `DB_NAME`
-   - `ADMIN_TOKEN_SECRET`
-   - `CORS_ORIGIN` = URL frontend Render (vi du: `https://hoanglong-web.onrender.com`)
-5. Dat bien moi truong cho frontend (`hoanglong-web`):
-   - `VITE_API_BASE_URL` = URL backend Render (vi du: `https://hoanglong-api.onrender.com`)
-6. Redeploy ca 2 service.
+## Required environment variables
 
-## Luu y quan trong
+API service:
 
-- Backend da dung `PORT` tu Render, khong hard-code 5000.
-- Frontend da dung `VITE_API_BASE_URL`, khong hard-code localhost.
-- Neu login admin that bai tren production, kiem tra:
-  - backend da restart sau khi set env
-  - token secret da co
-  - user admin ton tai trong bang `users`.
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `ADMIN_TOKEN_SECRET`
+- `CORS_ORIGIN` — exact public frontend origin, without a trailing slash
 
-## Tao/Cap nhat admin user
+Static site:
 
-Neu can tao nhanh admin user trong DB:
+- `VITE_API_BASE_URL` — full public API origin, without a trailing slash
 
-```sql
-UPDATE users
-SET role = 'admin'
-WHERE email = 'nguyenhoanglong26022006@gmail.com';
-```
+Do not copy a local `.env` file into Render or commit credentials to the repository. Use Render environment variables and rotate any credential that has previously appeared in Git history.
 
-Neu chua co user, them moi user truoc roi cap nhat role.
+## Verification after deploy
+
+1. Confirm `/api/health` returns `status: ok`.
+2. Confirm `/api/categories` and `/api/properties?limit=1` return database-backed JSON.
+3. Open the static site and verify it calls the public API rather than `localhost`.
+4. Verify public property listing/detail pages and one non-sensitive contact submission.
+5. Verify admin login, one reversible listing edit, image management, and enquiry status update.
+6. Re-run the build, lint, backend check, and password tests from the root README.
+
+Database schema changes are not applied automatically by the Blueprint. Apply reviewed SQL migrations separately and back up any non-demo database before a destructive migration.

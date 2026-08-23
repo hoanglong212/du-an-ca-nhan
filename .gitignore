@@ -1,0 +1,26 @@
+# Environment and credentials
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+.vscode/
+*.pem
+*.key
+*credentials*.json
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build, test, and runtime output
+dist/
+**/dist/
+build/
+coverage/
+*.log
+*.session.sql
+.DS_Store
+Thumbs.db
+

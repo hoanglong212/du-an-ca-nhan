@@ -30,44 +30,41 @@ import {
 const TRUST_ITEMS = [
   {
     icon: Award,
-    title: "15+ năm kinh nghiệm",
-    text: "Am hiểu thị trường bất động sản Việt Nam và kinh nghiệm tư vấn thực tế.",
+    title: "Bộ lọc từ REST API",
+    text: "Tìm kiếm và sắp xếp bất động sản bằng tham số rõ ràng, có phân trang từ máy chủ.",
   },
   {
     icon: UsersRound,
-    title: "2000+ khách hàng hài lòng",
-    text: "Phong cách phục vụ tận tâm, chăm sóc theo nhu cầu thực tế của từng gia đình.",
+    title: "Quản trị tách biệt",
+    text: "Luồng đăng nhập và quản lý nội dung dành riêng cho tài khoản admin hoặc editor.",
   },
   {
     icon: ChartNoAxesCombined,
-    title: "500+ giao dịch thành công",
-    text: "Hồ sơ giao dịch minh bạch, quy trình rõ ràng, đồng hành xuyên suốt.",
+    title: "Dữ liệu MySQL",
+    text: "Bất động sản, hình ảnh, danh mục và yêu cầu liên hệ được lưu bằng mô hình quan hệ.",
   },
   {
     icon: ShieldCheck,
-    title: "Uy tín và an toàn",
-    text: "Hỗ trợ pháp lý đầy đủ, thông tin được xác minh và cập nhật liên tục.",
+    title: "Trải nghiệm responsive",
+    text: "Trang công khai và khu vực quản trị được thiết kế cho cả desktop lẫn thiết bị di động.",
   },
 ];
 
-const TESTIMONIALS = [
+const DEMO_WORKFLOWS = [
   {
-    quote:
-      '"Đội ngũ tư vấn rất chuyên nghiệp, hiểu nhu cầu gia đình tôi và đề xuất sản phẩm phù hợp ngay từ lần gặp đầu tiên."',
-    name: "Nguyễn Văn Anh",
-    role: "Chủ nhà",
+    text: "Kết hợp từ khóa, vị trí, loại giao dịch, giá và diện tích để mở danh sách phù hợp.",
+    title: "Khám phá bất động sản",
+    role: "Luồng công khai",
   },
   {
-    quote:
-      '"Khả năng phân tích thị trường tốt, thông tin rõ ràng. Tôi ra quyết định đầu tư nhanh và an tâm hơn rất nhiều."',
-    name: "Trần Minh Hòa",
-    role: "Nhà đầu tư",
+    text: "Mở chi tiết, xem bộ ảnh, đánh dấu yêu thích và gửi yêu cầu tư vấn gắn với bất động sản.",
+    title: "Chi tiết và liên hệ",
+    role: "Luồng người dùng",
   },
   {
-    quote:
-      '"Lần đầu mua nhà nên tôi khá lo lắng, nhưng quá trình được hướng dẫn rất chi tiết, minh bạch và dễ hiểu."',
-    name: "Lê Quang Minh",
-    role: "Khách mua lần đầu",
+    text: "Tạo hoặc chỉnh sửa tin, chọn ảnh đại diện và cập nhật trạng thái yêu cầu liên hệ.",
+    title: "Quản trị nội dung",
+    role: "Luồng admin/editor",
   },
 ];
 
@@ -342,9 +339,9 @@ function HomePage() {
 
       <RevealSection className="container-shell py-20">
         <div className="mx-auto mb-14 max-w-5xl text-center">
-          <h2 className="text-4xl font-extrabold text-[var(--brand-navy-900)] md:text-6xl">Tại sao chọn chúng tôi</h2>
+          <h2 className="text-4xl font-extrabold text-[var(--brand-navy-900)] md:text-6xl">Điểm nhấn kỹ thuật</h2>
           <p className="mt-5 text-lg text-slate-600">
-            Cam kết phục vụ chuyên nghiệp, minh bạch và tận tâm trong từng giao dịch.
+            Những phần chính của luồng React, REST API, Express và MySQL.
           </p>
         </div>
 
@@ -363,18 +360,18 @@ function HomePage() {
 
       <RevealSection className="container-shell py-20">
         <div className="mx-auto mb-14 max-w-5xl text-center">
-          <h2 className="text-4xl font-extrabold text-[var(--brand-navy-900)] md:text-6xl">Khách hàng nói gì</h2>
+          <h2 className="text-4xl font-extrabold text-[var(--brand-navy-900)] md:text-6xl">Luồng demo nổi bật</h2>
           <p className="mt-5 text-lg text-slate-600">
-            Những chia sẻ thực tế từ khách hàng đã giao dịch cùng {SITE_CONFIG.shortBrandName}.
+            Ba hành trình ngắn để trình bày kỹ năng full-stack của dự án.
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {TESTIMONIALS.map((item) => (
-            <article key={item.name} className="surface-card hover-lift rounded-3xl p-7">
-              <p className="text-lg leading-relaxed text-slate-600">{item.quote}</p>
+          {DEMO_WORKFLOWS.map((item) => (
+            <article key={item.title} className="surface-card hover-lift rounded-3xl p-7">
+              <p className="text-lg leading-relaxed text-slate-600">{item.text}</p>
               <div className="mt-8">
-                <h3 className="text-xl font-bold text-[var(--brand-navy-900)]">{item.name}</h3>
+                <h3 className="text-xl font-bold text-[var(--brand-navy-900)]">{item.title}</h3>
                 <p className="text-sm text-slate-500">{item.role}</p>
               </div>
             </article>

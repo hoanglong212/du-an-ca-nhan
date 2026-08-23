@@ -1,142 +1,176 @@
-# 🏠 Real Estate Platform
+# Real Estate Platform
 
-## 📌 Overview
+A full-stack real estate listing application built with React, Express, and MySQL. Visitors can discover properties and send enquiries, while authenticated staff manage listing content, image URLs, and enquiry status through a separate admin interface.
 
-A full-stack real estate web application that allows users to browse, filter, and explore property listings.
-The system also includes an admin panel for managing properties, images, and customer inquiries.
+[GitHub repository](https://github.com/hoanglong212/real-estate-platform) · Demo video: add a verified 60–90 second walkthrough before applications
 
-This project demonstrates end-to-end web development skills including frontend UI, backend API design, and database management.
+## Preview
 
----
+![Real Estate Platform home page](docs/assets/screenshots/home.png)
 
-## 🚀 Features
+## Core features
 
-### 👤 User Features
+### Public experience
 
-* Browse property listings with detailed information
-* Filter properties by price, location, and type
-* View property details with image gallery
-* Save favorite properties and track recently viewed listings
-* Submit contact forms for inquiries
+- Browse paginated property listings with server-side filters for location, price, listing type, category, status, and sort order.
+- View property details, an image gallery, amenities, legal information, and related listings.
+- Save favourites and recently viewed properties in browser storage without requiring an account.
+- Submit general or property-specific contact enquiries to the REST API.
+- Use responsive Vietnamese-language pages with loading, empty, and error states.
 
-### 🛠️ Admin Features
+### Admin experience
 
-* Create, update, and delete property listings
-* Upload and manage property images (including cover images)
-* Manage categories and property metadata
-* Handle customer contact submissions
+- Sign in with a role-checked admin/editor account.
+- Create, update, hide, and delete property listings.
+- Add image URLs, choose a cover image, and delete images.
+- Review contact enquiries and update their status to new, contacted, or closed.
 
----
+The repository does not implement public user accounts, category CRUD, binary image uploads, payments, or map-based public search. Favourites and recent views are browser-local preferences.
 
-## 🧠 Tech Stack
+## Architecture
 
-### Frontend
+```mermaid
+flowchart LR
+    browser["Browser"] --> react["React + Vite client"]
+    react -->|"REST / JSON"| api["Node.js + Express API"]
+    api --> mysql["MySQL"]
+    react -->|"Admin bearer token"| api
+```
 
-* React
-* HTML, CSS (Tailwind if applicable)
+| Path | Responsibility |
+|---|---|
+| `client/` | React Router pages, Tailwind-based responsive UI, public/admin components, API client, and browser-local preferences |
+| `server/` | Express routes, validation, admin authentication, MySQL queries, schema, and migrations |
+| `render.yaml` | Render Blueprint for the API web service and frontend static site |
 
-### Backend
+The database schema contains `categories`, `users`, `properties`, `property_images`, and `contacts`. Foreign keys connect listings to categories and images, and preserve enquiries if a property is removed.
 
-* Node.js
-* Express.js
+## Authentication and security notes
 
-### Database
+- Admin passwords use parameterised scrypt hashes. A tested SHA-256 compatibility path remains only for migrating older records; plaintext passwords are rejected.
+- Admin bearer tokens are signed with HMAC-SHA256 and expire after seven days.
+- `ADMIN_TOKEN_SECRET` is required at startup instead of falling back to a public default.
+- SQL values use MySQL2 parameter placeholders, JSON bodies are size-limited, and CORS is configured by environment.
+- Real `.env` files, editor database connections, dependencies, build output, logs, and local SQL sessions are ignored by Git.
 
-* MySQL
+This is a portfolio application, not a production identity system. Managed identity, password reset, refresh tokens, login rate limiting, audit logs, and CSRF-resistant cookie authentication would be required before handling real customer data.
 
-### Other
+## Technology
 
-* REST API
-* Git & GitHub
+| Area | Tools |
+|---|---|
+| Frontend | React 19, React Router, Vite, Tailwind CSS, Lucide icons |
+| Backend | Node.js, Express 5, MySQL2, dotenv, CORS, built-in crypto |
+| Database | MySQL 8 schema and forward SQL migrations |
+| Deployment | Render Blueprint: Node web service + static site |
 
----
+## Local setup
 
-## 🏗️ System Architecture
+### Prerequisites
 
-Frontend (React)
-⬇
-REST API (Node.js + Express)
-⬇
-MySQL Database
+- Node.js 20+
+- npm
+- MySQL 8+
 
----
-
-## 📂 Database Design
-
-Main tables include:
-
-* `properties` – property details (price, location, area, etc.)
-* `property_images` – multiple images per property
-* `categories` – property types
-* `users` – system users/admin
-* `contacts` – customer inquiries
-
----
-
-## ⚙️ Installation & Setup
-
-### 1. Clone repository
+### 1. Install dependencies
 
 ```bash
-git clone https://github.com/your-username/real-estate-platform.git
-cd real-estate-platform
+npm ci --prefix server
+npm ci --prefix client
 ```
 
-### 2. Setup Backend
+### 2. Configure the API
+
+```powershell
+Copy-Item server/.env.example server/.env
+Copy-Item client/.env.example client/.env
+```
+
+Set a long random `ADMIN_TOKEN_SECRET` and your local MySQL connection values in `server/.env`. Keep both generated files untracked.
+
+### 3. Create the database
+
+Execute `server/db/schema.sql` in MySQL. Apply only the migrations that are not already represented in your database:
+
+- `2026-03-07-add-amenities-column-to-properties.sql`
+- `2026-03-07-property-amenities-and-optional-coords.sql`
+- `2026-03-08-add-property-kind-and-legal-document.sql`
+
+The schema creates structure only; it does not fabricate portfolio listings or an admin password. Add non-sensitive demo records for local presentation.
+
+### 4. Start both services
+
+Terminal 1:
 
 ```bash
-cd backend
-npm install
-npm start
+npm run dev --prefix server
 ```
 
-### 3. Setup Frontend
+Terminal 2:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+npm run dev --prefix client
 ```
 
-### 4. Setup Database
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:5000`
+- Health check: `http://localhost:5000/api/health`
 
-* Create MySQL database
-* Import schema (if provided)
-* Update `.env` file:
+The client uses `VITE_API_BASE_URL`; the API uses `PORT`, `DB_*`, `ADMIN_TOKEN_SECRET`, and `CORS_ORIGIN`.
 
-```env
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=yourpassword
-DB_NAME=real_estate_db
+## Verification
+
+```bash
+npm test --prefix server
+npm run check --prefix server
+npm run lint --prefix client
+npm run build --prefix client
 ```
 
+Latest verification on 23 August 2026:
 
+| Check | Result |
+|---|---|
+| Password-hashing tests | 3 passed |
+| Backend syntax check | Passed |
+| Frontend ESLint | Passed |
+| Frontend production build | Passed |
+| Production dependency audit | 0 known vulnerabilities in server and client |
+| Local read-only API smoke check | Health OK, 4 categories, 3 properties returned from the configured local MySQL database |
 
-## 🙋 My Contribution
+There is not yet an automated route/integration test suite for the complete REST API. The smoke result verifies the local API/database path, but it is not a substitute for endpoint-level regression tests.
 
-* Designed and developed full-stack architecture using React, Node.js, and MySQL
-* Built RESTful APIs for property management and data retrieval
-* Implemented user features such as filtering, favorites, and property detail views
-* Developed admin panel for CRUD operations and image management
-* Designed and structured relational database schema
+## Deployment
 
----
+`render.yaml` builds `server/` as a Node web service and `client/` as a static site. Configure all database and authentication secrets in Render, set `CORS_ORIGIN` to the exact frontend URL, and set `VITE_API_BASE_URL` to the API URL before redeploying.
 
-## 📈 Future Improvements
+See [`DEPLOY.md`](DEPLOY.md) for the deployment checklist. No currently reachable live deployment is claimed in this README until the public URLs have been verified.
 
-* Add authentication and role-based access control
-* Implement advanced search with map integration
-* Optimize performance and API response time
-* Deploy application to cloud (Vercel / Render / AWS)
+## My contribution
 
----
+Repository history attributes the implementation to `hoanglong212`. I built and integrated:
 
-## 📬 Contact
+- the responsive React public and admin interfaces
+- the Express REST API and MySQL data model
+- property filtering, detail, enquiry, and admin CRUD workflows
+- URL-based image management and browser-local favourites/recent views
+- environment-based deployment configuration and portfolio security cleanup
 
-Nguyen Hoang Long
-Email: [nguyenhoanglong260222006@gmail.com](mailto:nguyenhoanglong260222006@gmail.com)
-GitHub: https://github.com/hoanglong212
-LinkedIn: https://www.linkedin.com/in/long-nguyen-7135b73a4/
+## Demo checklist
 
----
+1. Start on the property listing and apply one location/type filter.
+2. Open a property detail, change the gallery image, and favourite the listing.
+3. Submit an enquiry using clearly labelled demo data.
+4. Sign in as an admin, create or edit a demo listing, set its cover image, and show the enquiry status queue.
+5. End on the repository structure and verification commands.
+
+Use only non-sensitive demo accounts and data in screenshots or recordings. Add the final public demo and video links at the top of this README after checking them in a private browser window.
+
+## Known limitations
+
+- Admin image management stores external image URLs; it does not upload files.
+- Favourites and recently viewed data are local to one browser.
+- Admin authentication is appropriate for a portfolio demo, not public production.
+- SQL migrations are manual and need an explicit migration ledger before multi-environment deployment.
+- Automated REST route/integration tests and a verified public deployment are still pending.
+- The repository does not currently declare an open-source licence.

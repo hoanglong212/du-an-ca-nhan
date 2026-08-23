@@ -1,0 +1,22 @@
+{
+  "name": "real-estate-api",
+  "version": "1.0.0",
+  "description": "Express and MySQL REST API for the Real Estate Platform portfolio project.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js",
+    "check": "node --check app.js",
+    "test": "node --test"
+  },
+  "keywords": ["express", "mysql", "real-estate", "rest-api"],
+  "author": "Nguyen Hoang Long",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mysql2": "^3.19.0"
+  }
+}

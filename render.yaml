@@ -30,7 +30,6 @@ services:
   - type: web
     name: hoanglong-web
     runtime: static
-    region: singapore
     plan: free
     branch: main
     rootDir: client

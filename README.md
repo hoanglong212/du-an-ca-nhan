@@ -2,7 +2,7 @@
 
 A full-stack real estate listing application built with React, Express, and MySQL. Visitors can discover properties and send enquiries, while authenticated staff manage listing content, image URLs, and enquiry status through a separate admin interface.
 
-[GitHub repository](https://github.com/hoanglong212/real-estate-platform) · Demo video: add a verified 60–90 second walkthrough before applications
+[Live demo](https://real-estate-web-hoanglong212.onrender.com) · [REST API health](https://real-estate-api-hoanglong212.onrender.com/api/health) · [GitHub repository](https://github.com/hoanglong212/real-estate-platform) · Demo video: add a verified 60–90 second walkthrough before applications
 
 ## Preview
 
@@ -134,12 +134,13 @@ Latest verification on 23 August 2026:
 
 | Check | Result |
 |---|---|
-| Password-hashing tests | 3 passed |
+| Backend unit tests | 5 passed (password handling and database TLS configuration) |
 | Backend syntax check | Passed |
 | Frontend ESLint | Passed |
 | Frontend production build | Passed |
 | Production dependency audit | 0 known vulnerabilities in server and client |
-| Local read-only API smoke check | Health OK, 4 categories, 3 properties returned from the configured local MySQL database |
+| Hosted read-only API smoke check | HTTP 200 for health, 4 categories, and 3 fictional properties from managed MySQL |
+| Hosted browser check | React homepage loaded the API-backed listing counts and all 3 property cards |
 
 There is not yet an automated route/integration test suite for the complete REST API. The smoke result verifies the local API/database path, but it is not a substitute for endpoint-level regression tests.
 
@@ -151,7 +152,14 @@ idempotent, and hosted MySQL connections verify the provider CA supplied through
 Configure current database credentials and the CA in Render before approving the first Blueprint
 sync.
 
-See [`DEPLOY.md`](DEPLOY.md) for the deployment checklist. No currently reachable live deployment is claimed in this README until the public URLs have been verified.
+Verified portfolio deployment:
+
+- Frontend: <https://real-estate-web-hoanglong212.onrender.com>
+- API: <https://real-estate-api-hoanglong212.onrender.com>
+- Health check: <https://real-estate-api-hoanglong212.onrender.com/api/health>
+
+See [`DEPLOY.md`](DEPLOY.md) for the deployment checklist. Both services use Render's free tier,
+so the first request after inactivity can take 50 seconds or more while the service wakes.
 
 ## My contribution
 
@@ -179,5 +187,6 @@ Use only non-sensitive demo accounts and data in screenshots or recordings. Add 
 - Favourites and recently viewed data are local to one browser.
 - Admin authentication is appropriate for a portfolio demo, not public production.
 - SQL migrations are manual and need an explicit migration ledger before multi-environment deployment.
-- Automated REST route/integration tests and a verified public deployment are still pending.
+- Automated REST route/integration tests are still pending; current hosted verification is a read-only smoke check.
+- Free Render services can cold-start after inactivity, and the free Aiven database can power off after prolonged inactivity.
 - The repository does not currently declare an open-source licence.

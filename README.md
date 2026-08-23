@@ -142,7 +142,7 @@ There is not yet an automated route/integration test suite for the complete REST
 
 ## Deployment
 
-`render.yaml` builds `server/` as a Node web service and `client/` as a static site. Configure all database and authentication secrets in Render, set `CORS_ORIGIN` to the exact frontend URL, and set `VITE_API_BASE_URL` to the API URL before redeploying.
+`render.yaml` builds `server/` as a Node web service and `client/` as a static site. Render generates the admin-token signing secret and wires the expected public origins; configure only freshly rotated database credentials in Render before approving the first Blueprint sync.
 
 See [`DEPLOY.md`](DEPLOY.md) for the deployment checklist. No currently reachable live deployment is claimed in this README until the public URLs have been verified.
 

@@ -7,21 +7,20 @@ The root `render.yaml` defines two services:
 
 ## Required environment variables
 
-API service:
+API service database inputs:
 
 - `DB_HOST`
 - `DB_PORT`
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_NAME`
-- `ADMIN_TOKEN_SECRET`
-- `CORS_ORIGIN` — exact public frontend origin, without a trailing slash
 
-Static site:
+The Blueprint generates `ADMIN_TOKEN_SECRET` and configures `CORS_ORIGIN` and
+`VITE_API_BASE_URL` for the expected Render service URLs.
 
-- `VITE_API_BASE_URL` — full public API origin, without a trailing slash
-
-Do not copy a local `.env` file into Render or commit credentials to the repository. Use Render environment variables and rotate any credential that has previously appeared in Git history.
+Do not copy a local `.env` file into Render or commit credentials to the repository. Supply freshly
+rotated database credentials through Render's secret-variable prompt. Any password that previously
+appeared in Git history must be treated as compromised.
 
 ## Verification after deploy
 
@@ -32,4 +31,5 @@ Do not copy a local `.env` file into Render or commit credentials to the reposit
 5. Verify admin login, one reversible listing edit, image management, and enquiry status update.
 6. Re-run the build, lint, backend check, and password tests from the root README.
 
-Database schema changes are not applied automatically by the Blueprint. Apply reviewed SQL migrations separately and back up any non-demo database before a destructive migration.
+Database schema changes are not applied automatically by the Blueprint. Apply reviewed SQL
+migrations separately and back up any non-demo database before a destructive migration.

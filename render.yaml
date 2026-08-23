@@ -7,7 +7,7 @@ services:
     branch: main
     rootDir: server
     buildCommand: npm ci
-    startCommand: npm run start
+    startCommand: npm run db:bootstrap && npm run start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
@@ -21,6 +21,10 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: DB_NAME
+        sync: false
+      - key: DB_SSL
+        value: true
+      - key: DB_SSL_CA
         sync: false
       - key: ADMIN_TOKEN_SECRET
         generateValue: true

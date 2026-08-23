@@ -14,6 +14,7 @@ API service database inputs:
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_NAME`
+- `DB_SSL_CA` — the provider CA certificate used to verify the TLS connection
 
 The Blueprint generates `ADMIN_TOKEN_SECRET` and configures `CORS_ORIGIN` and
 `VITE_API_BASE_URL` for the expected Render service URLs.
@@ -31,5 +32,7 @@ appeared in Git history must be treated as compromised.
 5. Verify admin login, one reversible listing edit, image management, and enquiry status update.
 6. Re-run the build, lint, backend check, and password tests from the root README.
 
-Database schema changes are not applied automatically by the Blueprint. Apply reviewed SQL
-migrations separately and back up any non-demo database before a destructive migration.
+The API start command runs `npm run db:bootstrap`. It creates the configured database and schema
+when absent, then inserts three fictional listings only when `properties` is empty. It does not
+overwrite existing listings or create an admin account. Later destructive migrations still require
+a reviewed backup and a separate maintenance step.

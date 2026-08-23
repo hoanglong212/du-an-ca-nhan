@@ -96,7 +96,10 @@ Execute `server/db/schema.sql` in MySQL. Apply only the migrations that are not 
 - `2026-03-07-property-amenities-and-optional-coords.sql`
 - `2026-03-08-add-property-kind-and-legal-document.sql`
 
-The schema creates structure only; it does not fabricate portfolio listings or an admin password. Add non-sensitive demo records for local presentation.
+The SQL file creates structure only. Hosted portfolio deployment runs the idempotent
+`npm run db:bootstrap` command, which creates the configured database when absent and adds three
+clearly labelled fictional listings only when the listings table is empty. It never creates an
+admin password.
 
 ### 4. Start both services
 
@@ -142,7 +145,11 @@ There is not yet an automated route/integration test suite for the complete REST
 
 ## Deployment
 
-`render.yaml` builds `server/` as a Node web service and `client/` as a static site. Render generates the admin-token signing secret and wires the expected public origins; configure only freshly rotated database credentials in Render before approving the first Blueprint sync.
+`render.yaml` builds `server/` as a Node web service and `client/` as a static site. Render generates
+the admin-token signing secret and wires the expected public origins. The API bootstrap is
+idempotent, and hosted MySQL connections verify the provider CA supplied through `DB_SSL_CA`.
+Configure current database credentials and the CA in Render before approving the first Blueprint
+sync.
 
 See [`DEPLOY.md`](DEPLOY.md) for the deployment checklist. No currently reachable live deployment is claimed in this README until the public URLs have been verified.
 

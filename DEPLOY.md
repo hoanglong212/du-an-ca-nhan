@@ -2,8 +2,8 @@
 
 The root `render.yaml` defines two services:
 
-- `hoanglong-api`: Node/Express web service rooted at `server/`
-- `hoanglong-web`: React static site rooted at `client/`
+- `real-estate-api-hoanglong212`: Node/Express web service rooted at `server/`
+- `real-estate-web-hoanglong212`: React static site rooted at `client/`
 
 ## Required environment variables
 

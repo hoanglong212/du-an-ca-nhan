@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: hoanglong-api
+    name: real-estate-api-hoanglong212
     runtime: node
     region: singapore
     plan: free
@@ -29,10 +29,10 @@ services:
       - key: ADMIN_TOKEN_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://hoanglong-web.onrender.com
+        value: https://real-estate-web-hoanglong212.onrender.com
 
   - type: web
-    name: hoanglong-web
+    name: real-estate-web-hoanglong212
     runtime: static
     branch: main
     rootDir: client
@@ -40,7 +40,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://hoanglong-api.onrender.com
+        value: https://real-estate-api-hoanglong212.onrender.com
     routes:
       - type: rewrite
         source: /*
